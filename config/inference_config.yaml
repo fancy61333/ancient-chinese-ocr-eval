@@ -1,0 +1,70 @@
+# Configuration of the submitted inference run.
+#
+# Values transcribed from the configuration record of the submitted system.
+# Paths are omitted: the run executes inside the shared-task container, where
+# the input and output locations are fixed by the platform.
+#
+# Symbols:
+#   [recorded]  value is stated in the submitted configuration record
+#   [search]    value was selected by threshold search on a local split
+#   [platform]  value is imposed by the platform and is not ours to set
+
+run:
+  seed: 2026                     # [recorded]
+  device: cuda if available      # [recorded]
+
+detector:
+  architecture: YOLOv8n          # [recorded]
+  input_resolution: 640          # [recorded]
+  anchors: default               # [recorded]
+  conf_threshold: 0.405          # [recorded]  detector confidence floor
+  conf_threshold_range_submitted_versions: [0.36, 0.41]   # [search]
+  nms_iou_threshold: 0.45        # [recorded]  submitted configuration record
+  nms_iou_note: >
+    The inference call does not pass `iou` to the detector, so the value in
+    effect at run time is the library default rather than the recorded value.
+    Both are given here; the discrepancy is immaterial to the argument of the
+    paper but is reported for the sake of accurate reproduction.
+  nms_iou_library_default: 0.7   # ultralytics `predict` default
+  min_box_size: 8                # [recorded]  pixels, boxes below this are dropped
+  max_box_size: 500              # [recorded]  pixels, boxes above this are dropped
+
+crop_normalisation:
+  clipping: to image boundaries  # [recorded]
+  padding: proportional          # [recorded]  fraction of box width and height
+  padding_factor: 0.05           # [search]    submitted version; the reference script ships 0.0
+  colour_space: RGB              # [recorded]
+  resize: [64, 64]               # [recorded]  classifier input size
+  interpolation: bilinear        # [recorded]
+  normalisation:
+    mean: [0.485, 0.456, 0.406]  # [recorded]
+    std: [0.229, 0.224, 0.225]   # [recorded]
+
+recogniser:
+  architecture: ResNet18         # [recorded]
+  classification_head: 4105      # [recorded]  closed inventory, competition classes
+  cls_conf_threshold: 0.10       # [recorded]  predictions below this are discarded
+  decision_rule: argmax          # [recorded]  top-1 only
+  top_k_recorded: false          # no rank beyond top-1 was recorded (Section 4.3)
+
+confidence_fusion:
+  rule: product                  # [recorded]  detector probability x classifier probability
+
+training:                        # Section 3, Appendix A
+  loss: cross-entropy
+  optimiser: AdamW
+  learning_rate: 1.0e-3
+  weight_decay: 5.0e-4
+  schedule: cosine
+  epochs: 100
+  batch_size: 256
+  augmentation: [horizontal_flip, small_rotation]
+  detector_noise_matching_iou: 0.5    # predicted boxes matched to ground truth
+  class_balanced_sampling: inverse-frequency, exponent 0.5
+
+evaluation:                      # Section 4.3
+  performed_by: shared-task platform scorer          # [platform]
+  detection_f1_matching_threshold: not published     # [platform]
+  recognition_accuracy: top-1, over correctly localised boxes
+  end_to_end_f1: joint result, as returned by the platform
+  reproducible_from_this_repository: false

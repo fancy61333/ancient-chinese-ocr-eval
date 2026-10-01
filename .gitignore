@@ -1,0 +1,21 @@
+# Model weights derived from shared-task data: never commit.
+*.pt
+*.pth
+*.onnx
+models/
+
+# Images and per-instance predictions: never commit.
+*.png
+*.jpg
+data/
+prediction.json
+*_preds.csv
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,16 @@
+Per-category training distribution
+categories                                    575
+training images                               100554
+mean per category                             174.88
+median per category                           85
+min                                           1
+max                                           1816
+p10                                           9.4
+p25                                           35.0
+p75                                           195.5
+p90                                           451.6
+categories with <5 images                     31 (5.4%)
+categories with <10 images                    58 (10.1%)
+categories with <20 images                    90 (15.7%)
+share of images held by top 10% categories    44.2%
+share of images held by top 1% categories     7.8%
